@@ -380,21 +380,68 @@ def get_root_from_normalized_vector(normalized, possible_prefs):
 
     return normalized_copy
 
-### -------------------------------------------
-number_of_voters = 25
-number_of_candidates = 3
 
-candidates = get_alphabet_firstn(number_of_candidates)
-possible_prefs = all_possible_prefs(candidates)
+def generate_roots(number_of_voters, number_of_candidates, method="semidirect"):
+    candidates = get_alphabet_firstn(number_of_candidates)
+    possible_prefs = all_possible_prefs(candidates)
 
-normalized_vectors = generate_normalized_indirect(number_of_voters,number_of_candidates)
+    if method == "direct":
+        normalized_vectors = generate_normalized_direct(number_of_voters, number_of_candidates)
 
-roots = get_root_from_normalized_vector(normalized_vectors, possible_prefs)
+    if method == "indirect":
+        normalized_vectors = generate_normalized_indirect(number_of_voters, number_of_candidates)
 
+    if method == "semidirect":
+        normalized_vectors = generate_normalized_semidirect(number_of_voters, number_of_candidates)
+
+    roots = get_root_from_normalized_vector(normalized_vectors, possible_prefs)
+
+    return roots
+
+# End of functions
+#===============================================================================
+#=====================  Generation                   ===========================
+#===============================================================================
+
+number_of_candidates = 4
+number_of_voters = 4
+print_profiles =  True # or it will just show the numbers 
+
+# Generate Normalized (for demonstration only, it is created by generate_roots function)
+normalized = generate_normalized_semidirect(number_of_candidates, number_of_voters)
+
+# Roots
+# If you are running calculations, it is better comment out normalized genration, or to generate roots from normalized vector direclty by "get_root_from_normalized_vector" function in order not to calculate the same thing twise.
+roots = generate_roots(number_of_voters, number_of_candidates)
+
+if print_profiles:
+    print("\n" * 2)
+    print('roots in vector form')
+    print('-' * 10)
+    print(roots)
+
+# We need this two to represent the profiles from vectors. generate_roots function creates them internally. 
+
+if print_profiles:
+    candidates = get_alphabet_firstn(number_of_candidates)
+    possible_prefs = all_possible_prefs(candidates)
+    print("\n" * 2)
+    print('roots in preference form')
+    print('-' * 10)
+
+    for ind, row in enumerate(roots):
+        print("Root", ind+1,": ", summarize_voters(comp_vector_to_profile(row, possible_prefs)))
+
+
+
+print("\n" * 2)
+
+print('numbers')
+print('-' * 10)
+
+print("number of voters: ", number_of_voters)
+print("number of candidates: ", number_of_candidates)
+# Number of all profiles
 print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
-print("normalized:", len(normalized_vectors))
+print("normalized: ", len(normalized))
 print("roots: ", len(roots))
-
-
-## You can generate a profile from the vector below. Easily loopable
-# comp_vector_to_profile(roots[0], possible_prefs)
