@@ -390,7 +390,8 @@ possible_prefs = all_possible_prefs(candidates)
 normalized_vectors = generate_normalized_indirect(number_of_voters,number_of_candidates)
 
 roots = get_root_from_normalized_vector(normalized_vectors, possible_prefs)
-
+print("number_of_voters", number_of_voters)
+print("number_of_candidates", number_of_candidates)
 print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
 print("normalized:", len(normalized_vectors))
 print("roots: ", len(roots))
