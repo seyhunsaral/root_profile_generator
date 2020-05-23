@@ -52,11 +52,18 @@ def delete_if_first_not_max(np_array):
 
 
 
-### 
-###  Generating Normalized Vectors
-###
+##############################################
+##   Generating Normalized Vectors          ##
+##############################################
 
-## METHOD 1 - DIRECT BUT SLOWER
+## METHOD 1 - Direct method
+
+# In this method, I create empty boxes for possible profiles and get
+# possible partitions of number o candidates. Given we have a maximum
+# member on a partition, we create the first column with the maximum
+# element, and the rest from the remainng partitions.
+
+
 def generate_normalized_direct(num_voters, num_candidates):
     # Note: for technical reasons the output is not ordered
     # The maximal element is on the first column decreasing but the rest increases
@@ -68,7 +75,7 @@ def generate_normalized_direct(num_voters, num_candidates):
 
     for my_partition in partitions:
 
-        # Take the last element (which is the maximum)
+        # Take the last element (which is the maximum for accel_asc function)
         current_v1 = my_partition.pop()
 
         # Calculate how many zeros to permute with the partitioned values
@@ -88,7 +95,13 @@ def generate_normalized_direct(num_voters, num_candidates):
 
 
 
-## Method 2 - Generates anonymous vector set first
+## METHOD 2 - Generates anonymous vector set first
+
+# In this method, I create all anonymous vectors first and then delete
+# with the first element is not maximum. It is obviously "inefficient"
+# but surprisingly in some cases it is faster as we use itertools for
+# generation. 
+
 def generate_normalized_indirect(number_of_voters, number_of_candidates):
     number_of_balls = number_of_voters
     number_of_boxes = math.factorial(number_of_candidates)
@@ -98,7 +111,13 @@ def generate_normalized_indirect(number_of_voters, number_of_candidates):
 
 
 
-## Method 3 - Semi-direct: Generates everything except first column 
+## METHOD 3 - Semi-direct: Generates everything except first column 
+
+# It is almost like a mixture of Method 1 and 2. Instead of getting
+# full partitions of voters, we just take the number of balls for the
+# first column and generate all possible situations for the rest.In
+# some profiles, v1 is not maximum so we delete those.
+
 def generate_normalized_semidirect(number_of_voters, number_of_candidates):
     number_of_balls = number_of_voters
     number_of_boxes = math.factorial(number_of_candidates)
@@ -307,8 +326,6 @@ def rename_candidates(voters, dictionary):
     return new_voters
 
 
-
-
 # Renaming can be done with a dictionary
 # for instance  
 #     candidate_map = {"a":"b", "b":"c", "c":"a"}
@@ -334,6 +351,9 @@ def map_vector_entries(vector, index_from, index_to, possible_prefs):
 
 
 def get_root_from_normalized_vector(normalized, possible_prefs):
+# Takes a normalized vector array and if there are more than 1 max
+# element, it maps other maximal elments to first column. If it
+# coincides with another profile, it deletes that profile.
     normalized_copy = np.copy(normalized) # take a copy
 
     current_length = len(normalized_copy) 
@@ -361,14 +381,11 @@ def get_root_from_normalized_vector(normalized, possible_prefs):
     return normalized_copy
 
 ### -------------------------------------------
-
-
 number_of_voters = 25
 number_of_candidates = 3
+
 candidates = get_alphabet_firstn(number_of_candidates)
 possible_prefs = all_possible_prefs(candidates)
-
-
 
 normalized_vectors = generate_normalized_indirect(number_of_voters,number_of_candidates)
 
@@ -379,8 +396,5 @@ print("normalized:", len(normalized_vectors))
 print("roots: ", len(roots))
 
 
-
-
-## You can generate the profiles from roots like below, possibly with a loop
-
+## You can generate a profile from the vector below. Easily loopable
 # comp_vector_to_profile(roots[0], possible_prefs)
