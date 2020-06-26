@@ -37,8 +37,8 @@ def accel_asc(n):
 def balls_to_boxes(n, b):
     """ n balls b boxes problem. Returns all possible distributions in an iterable"""
     # I found the code exammpe https://stackoverflow.com/a/37712597/1819625 by Jared Gougen
-    partition_array = np.empty((math.comb(n+b-1, b-1), b), dtype=int)
-    masks = np.identity(b, dtype=int)
+    partition_array = np.empty((math.comb(n+b-1, b-1), b), dtype=np.int16)
+    masks = np.identity(b, dtype=np.int16)
     for i, c in enumerate(itertools.combinations_with_replacement(masks, n)): 
         partition_array[i,:] = sum(c)
     return partition_array
@@ -64,16 +64,20 @@ def delete_if_first_not_max(np_array):
 # element, and the rest from the remainng partitions.
 
 
-def generate_normalized_direct(num_voters, num_candidates):
+def generate_normalized_direct(num_voters, num_candidates, verbose = False):
     # Note: for technical reasons the output is not ordered
     # The maximal element is on the first column decreasing but the rest increases
     # We can of course sort them but this is extra calculation
     num_boxes = math.factorial(num_candidates)
     partitions = list(accel_asc(num_voters))
 
-    vectors = np.empty((0,num_boxes), dtype=int)
-
-    for my_partition in partitions:
+    vectors = np.empty((0,num_boxes), dtype=np.int16)
+    length_partitions = len(partitions)
+    if verbose:
+        print("length of partitions", length_partitions)
+    for ind, my_partition in enumerate(partitions):
+        if verbose:
+            print(ind, "/", length_partitions)
 
         # Take the last element (which is the maximum for accel_asc function)
         current_v1 = my_partition.pop()
@@ -122,7 +126,7 @@ def generate_normalized_semidirect(number_of_voters, number_of_candidates):
     number_of_balls = number_of_voters
     number_of_boxes = math.factorial(number_of_candidates)
     normalized_efficient = np.empty((0,number_of_boxes) ,dtype='int')
-    initial = [np.concatenate((np.array([number_of_balls]), np.zeros(number_of_boxes-1, dtype=int)))]
+    initial = [np.concatenate((np.array([number_of_balls]), np.zeros(number_of_boxes-1, dtype=np.int16)))]
     normalized_efficient = np.append(normalized_efficient, initial, axis = 0)
 
     for balls_right in range(1,number_of_balls):
@@ -305,7 +309,7 @@ def profile_to_comp_vector(voters, possible_prefs):
     condensed_voters = Counter(convert_condensed(voters))
     condensed_prefs = convert_condensed(possible_prefs)
     num_candidates = len(possible_prefs[0])
-    composition_vector = np.zeros(math.factorial(num_candidates),  dtype=int)
+    composition_vector = np.zeros(math.factorial(num_candidates),  dtype=np.int16)
 
     for key, value in condensed_voters.items():
         composition_index = np.where(condensed_prefs == key)[0][0]
@@ -398,50 +402,3 @@ def generate_roots(number_of_voters, number_of_candidates, method="semidirect"):
 
     return roots
 
-# End of functions
-#===============================================================================
-#=====================  Generation                   ===========================
-#===============================================================================
-
-number_of_candidates = 4
-number_of_voters = 4
-print_profiles =  True # or it will just show the numbers 
-
-# Generate Normalized (for demonstration only, it is created by generate_roots function)
-normalized = generate_normalized_semidirect(number_of_candidates, number_of_voters)
-
-# Roots
-# If you are running calculations, it is better comment out normalized genration, or to generate roots from normalized vector direclty by "get_root_from_normalized_vector" function in order not to calculate the same thing twise.
-roots = generate_roots(number_of_voters, number_of_candidates)
-
-if print_profiles:
-    print("\n" * 2)
-    print('roots in vector form')
-    print('-' * 10)
-    print(roots)
-
-# We need this two to represent the profiles from vectors. generate_roots function creates them internally. 
-
-if print_profiles:
-    candidates = get_alphabet_firstn(number_of_candidates)
-    possible_prefs = all_possible_prefs(candidates)
-    print("\n" * 2)
-    print('roots in preference form')
-    print('-' * 10)
-
-    for ind, row in enumerate(roots):
-        print("Root", ind+1,": ", summarize_voters(comp_vector_to_profile(row, possible_prefs)))
-
-
-
-print("\n" * 2)
-
-print('numbers')
-print('-' * 10)
-
-print("number of voters: ", number_of_voters)
-print("number of candidates: ", number_of_candidates)
-# Number of all profiles
-print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
-print("normalized: ", len(normalized))
-print("roots: ", len(roots))
