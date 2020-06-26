@@ -15,4 +15,6 @@ normalized = generate_normalized_semidirect(number_of_candidates, number_of_vote
 normalized = generate_normalized_direct(number_of_candidates, number_of_voters)
 normalized = generate_normalized_indirect(number_of_candidates, number_of_voters)
 ```
-I will probably create one wrapper to it with the method parameter (as it is in the roots function)
+TODO I will probably create one wrapper to it with the method parameter (as it is in the roots function)
+
+TODO Changing types to `dtype=np.int16` from `dtype=int` increases the available memory. I think in principle it is possible to use 8 bit as well as long as we have less then 127 voters. 
