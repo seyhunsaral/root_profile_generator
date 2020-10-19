@@ -388,6 +388,7 @@ def generate_roots(number_of_voters, number_of_candidates, method="semidirect"):
     if method == "direct":
         normalized_vectors = generate_normalized_direct(number_of_voters, number_of_candidates)
 
+<<<<<<< HEAD
     if method == "indirect":
         normalized_vectors = generate_normalized_indirect(number_of_voters, number_of_candidates)
 
@@ -419,6 +420,14 @@ if print_profiles:
     print('roots in vector form')
     print('-' * 10)
     print(roots)
+=======
+roots = get_root_from_normalized_vector(normalized_vectors, possible_prefs)
+print("number_of_voters", number_of_voters)
+print("number_of_candidates", number_of_candidates)
+print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
+print("normalized:", len(normalized_vectors))
+print("roots: ", len(roots))
+>>>>>>> c7150ada4e0a828297b6cedea1aba187480e83db
 
 # We need this two to represent the profiles from vectors. generate_roots function creates them internally. 
 
