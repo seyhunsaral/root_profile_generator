@@ -402,58 +402,39 @@ def generate_roots(number_of_voters, number_of_candidates, method="semidirect"):
 
     return roots
 
-# End of functions
-#===============================================================================
-#=====================  Generation                   ===========================
-#===============================================================================
-
-number_of_candidates = 4
-number_of_voters = 4
-print_profiles =  True # or it will just show the numbers 
-
-# Generate Normalized (for demonstration only, it is created by generate_roots function)
-normalized = generate_normalized_semidirect(number_of_candidates, number_of_voters)
-
-# Roots
-# If you are running calculations, it is better comment out normalized genration, or to generate roots from normalized vector direclty by "get_root_from_normalized_vector" function in order not to calculate the same thing twise.
-roots = generate_roots(number_of_voters, number_of_candidates)
-
-if print_profiles:
-    print("\n" * 2)
-    print('roots in vector form')
-    print('-' * 10)
-    print(roots)
-=======
-roots = get_root_from_normalized_vector(normalized_vectors, possible_prefs)
-print("number_of_voters", number_of_voters)
-print("number_of_candidates", number_of_candidates)
-print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
-print("normalized:", len(normalized_vectors))
-print("roots: ", len(roots))
->>>>>>> c7150ada4e0a828297b6cedea1aba187480e83db
-
-# We need this two to represent the profiles from vectors. generate_roots function creates them internally. 
-
-if print_profiles:
-    candidates = get_alphabet_firstn(number_of_candidates)
-    possible_prefs = all_possible_prefs(candidates)
-    print("\n" * 2)
-    print('roots in preference form')
-    print('-' * 10)
-
-    for ind, row in enumerate(roots):
-        print("Root", ind+1,": ", summarize_voters(comp_vector_to_profile(row, possible_prefs)))
 
 
+def num_normalized(number_of_voters, number_of_candidates):
+    vector_size = math.factorial(number_of_candidates) # size of the composition vector
 
-print("\n" * 2)
+    partitions = list(accel_asc(number_of_voters)) # partititions of an integer
 
-print('numbers')
-print('-' * 10)
+    number_of_normalized_vectors = 0
+    for p in partitions:
 
-print("number of voters: ", number_of_voters)
-print("number of candidates: ", number_of_candidates)
-# Number of all profiles
-print("all profiles:", math.factorial(number_of_candidates) ** number_of_voters)
-print("normalized: ", len(normalized))
-print("roots: ", len(roots))
+        current_partition = np.array(p)
+        size_of_current_partition = len(current_partition)
+
+        number_of_maximum_elements = len(np.where(current_partition == max(current_partition))[0])
+
+        if vector_size >= size_of_current_partition:
+            zeros_to_pad = [0] * (vector_size - size_of_current_partition)
+        else:
+            continue
+
+        current_partition_with_zeros = np.append(current_partition,zeros_to_pad)
+
+        counts_of_partition_integers = Counter(current_partition_with_zeros) # returns a dictionary with integer, frequency pair
+
+
+        factorials_to_divide = [math.factorial(i) for i in counts_of_partition_integers.values()]
+
+        number_of_possible_vectors = math.factorial(vector_size) / np.prod(factorials_to_divide)
+
+        maximality_ratio = number_of_maximum_elements / vector_size
+
+        number_of_normalized_vectors_for_the_partition = number_of_possible_vectors * maximality_ratio
+
+        number_of_normalized_vectors += number_of_normalized_vectors_for_the_partition
+
+    return number_of_normalized_vectors
